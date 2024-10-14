@@ -31,39 +31,51 @@ This is the major project of students of ZHCET, AMU under the aegis of MTS AUV Z
 
 ## USB forwarding(USB IP)
 
+1. First Connect Both the RPi and the Controller to your system.
+
 
 ### On the server side(linux):
 
-1. ```sudo apt-get install linux-tools-generic```
+1. ```sudo apt-get install linux-tools-generic``` 
 
 2. ```sudo modprobe usbip_host```
 
 3. ```sudo nano /etc/modules```
 
 4. add ```usbip_host``` to the end of texts
+   
+#### End of first time Commands {Commands 5-8 has to be run everytime}.
 
 5. ```lsusb``` to see a list of attached USB devices
 
-6. ```sudo usbip list -p -l```
+6. ```sudo usbip list -p -l``` Check the busid of the Controller
 
-7. ```sudo usbip bind --busid="Bus ID"``` enter busid from the above list command
+7. ```sudo usbip bind --busid="Bus ID"``` enter busid of the controller
 
-8. ```sudo usbipd```
+8. ```sudo usbipd``` to start session.
 
 ### On the client side(rpi):
-0. On RaspberryPi before using Pip first do 
-     ```sudo rm /usr/lib/python3.11/EXTERNALLY-MANAGED```
-1. ```wget http://raspbian.mirror.net.in/raspbian/raspbian/pool/main/l/linux/usbip_2.0+5.10.158-2+rpi1_armhf.deb```  or ```sudo apt-get install linux-tools-generic hwdata ```
+#### Make sure that the raspberry pi is on 1.8.0 version.
+1. On RaspberryPi before using Pip first do 
+  ```sudo rm /usr/lib/python3.11/EXTERNALLY-MANAGED```
 
-2. ```make the folder executable using chmod +x Folder Name```
+2. ```wget http://raspbian.mirror.net.in/raspbian/raspbian/pool/main/l/linux/usbip_2.0+5.10.158-2+rpi1_armhf.deb```  or ```sudo apt-get install linux-tools-generic hwdata ```
+   
 
-2. ```sudo apt install ./usbip_2.0+5.10.158-2+rpi1_armhf.deb```
+3. ```make the folder executable using chmod +x Folder Name```
 
-3. ```sudo modprobe vhci-hcd```
+4. ```sudo apt install ./usbip_2.0+5.10.158-2+rpi1_armhf.deb```
 
-4. ```sudo nano /etc/modules```
+5. ```sudo modprobe vhci-hcd```
 
-5. add ```vhci-hcd``` to the end of texts
+6. ```sudo nano /etc/modules```
 
-6. ```sudo usbip attach -r "IP Address" -b "Bus ID"```
+7. add ```vhci-hcd``` to the end of texts
 
+#### #### End of first time Commands {Commands 5-8 has to be run everytime}.
+
+1. ```sudo usbip attach -r "IP Address" -b "Bus ID"```
+
+2. Run ```sudo pigpiod``` on Terminal.
+   
+3. Run Your main python file.
