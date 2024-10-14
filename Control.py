@@ -122,7 +122,7 @@ class Control(Controller):
             return int((np.sign(value) * (27 ** (abs(value)) - 1) / (27 ** (1) - 1)) * 300 + 1500)
 
 #_____________________________________________________________Control-Thread__________________________________________________________________
-
+"""
 # Setup logging to write to a file
 logging.basicConfig(filename='joystick_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
 
@@ -131,6 +131,7 @@ def log_instruction(move, turn, depth):
     log_entry = f"{timestamp} - Move: {move}, Turn: {turn}, Depth: {depth}"
     logging.info(log_entry)
 
+"""
 
 def run(control): #Main Control Thread
     # t = 0
@@ -157,7 +158,12 @@ def run(control): #Main Control Thread
             control.control_queue.put((move, turn, depth))
             
             # Log the input values with timestamp
-            log_instruction(move, turn, depth)
+            #log_instruction(move, turn, depth)
+            
+            #
+            file = open("data.txt", 'a')
+            file.write(move, turn, depth)
+            file.close()
 
             if move & turn == 1500:
 
