@@ -8,7 +8,7 @@ import queue
 import socket
 import json
 
-import logging
+#import logging
 from datetime import datetime
 
 
@@ -160,9 +160,10 @@ def run(control): #Main Control Thread
             # Log the input values with timestamp
             #log_instruction(move, turn, depth)
             
-            #
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            log_entry = f"{timestamp} - Move: {move}, Turn: {turn}, Depth: {depth}"
             file = open("data.txt", 'a')
-            file.write(move, turn, depth)
+            file.write(log_entry)
             file.close()
 
             if move & turn == 1500:
