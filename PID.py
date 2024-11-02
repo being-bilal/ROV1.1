@@ -1,5 +1,10 @@
 class PID():
     def __init__(self, KP, KI, KD, target=0):
+        """
+        P (Proportional): Correction based on the current error.
+        I (Integral): Correction based on accumulated past errors.
+        D (Derivative): Correction based on how fast the error is changing.
+        """
         self.kp = KP
         self.ki = KI
         self.kd = KD

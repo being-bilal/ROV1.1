@@ -7,10 +7,9 @@ import threading
 import queue
 import socket
 import json
-
+#import pandas as pd
 #import logging
 from datetime import datetime
-
 
 
 ## Following is the controller class responsible for reading joystick data fro the serial bus using pygame.
@@ -62,7 +61,7 @@ controllers = {
     '2In1 USB Joystick':
         _GameController((-1, 2, -3, 0), 5),
 
-    'Logitech Extreme 3D':
+    'Logitech Logitech Extreme 3D':
         _GameController((-3, 0, -1, 2), 0),
 
         #Add your own controller here:
@@ -134,37 +133,39 @@ def log_instruction(move, turn, depth):
 """
 
 def run(control): #Main Control Thread
-    # t = 0
-    # t_prev = 0
-
-    # Dcontrol = PID()
-
+    t = 0
+    t_prev = time.time()  # Initialize time tracking
+    Dcontrol = PID(KP=2.0, KI=0.1, KD=0.05)  # PID instance 
+    Dcontrol.setLims(1300, 1700) # setting maximum and minimum limits
+    
     con = control.get_controller()
     #Depth = con.getThrottle()
     pi = pigpio.pi()
     print("Starting Control Loop")
-    time.sleep(2)
+    time.sleep(2) 
     try:
         while (1):
             con.update()
-            # t = time.time()
-            # dt = t-t_prev
-            # pos = 0 #Get from Depth Sensor
-            # sp  = 0 # Get fro Joystick Slider
-            # Depth = Dcontrol.compute(pos, sp, dt)
+            t = time.time()
+            dt = t-t_prev
+            pos = 0 #Get from Depth Sensor
+            sp  = 0 # Get from Joystick Slider
+            Depth = Dcontrol.compute(pos, sp, dt)
+            
             move = control.map_values(con.getPitch())
             turn = control.sig(con.getYaw())
             depth = control.map_values_depth(con.getThrottle())
             control.control_queue.put((move, turn, depth))
             
-            # Log the input values with timestamp
+            # Logging the input values with timestamp
             #log_instruction(move, turn, depth)
             
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            log_entry = f"{timestamp} - Move: {move}, Turn: {turn}, Depth: {depth}"
-            file = open("data.txt", 'a')
+            log_entry = f"{timestamp} - Move: {move}, Turn: {turn}, Depth: {depth} \n"
+            file = open("data.csv", 'a')
             file.write(log_entry)
-            file.close()
+            file.close()   
+            print(log_entry)
 
             if move & turn == 1500:
 
@@ -192,8 +193,8 @@ def run(control): #Main Control Thread
         pi.stop()
         print("Pi stopped.")
 
-            # t_prev = t
-        # time.sleep(0.01)
+        #t_prev = t
+        #time.sleep(0.01)
 
 #_______________________________________________________GUI-Thread________________________________________________________________________
 
@@ -203,7 +204,7 @@ def GUI(control): #GUI Thread --> sending data to BS
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1000000)
 
-    server_ip = "169.254.88.156"
+    server_ip = "169.254.88.156" # Raspberry pi IP
     server_port = 7777
 
     while True:
@@ -212,7 +213,7 @@ def GUI(control): #GUI Thread --> sending data to BS
 
         data = json.dumps({"move": move, "turn": turn, "depth": depth})
         s.sendto(data.encode(), (server_ip, server_port))
-        print("DATA SENT")
+        #print("DATA SENT")
 
 
 if __name__ == '__main__':
